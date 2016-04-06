@@ -4,8 +4,6 @@ class Main(object):
 	def __init__(self):
 
 		self.matrix = []
-		self.matrix_rows = None
-		self.matrix_cols = None
 		self.start()
 
 	def start(self):
@@ -20,7 +18,6 @@ class Main(object):
 						while True:
 							new_row = raw_input('The row entered is of different size, the size of the row should be {}. Please enter a new row: '.format(len(self.matrix[0])))
 							if new_row.lower() == 'end':
-								print self.matrix
 								return
 							new_clear_row = self.get_row(new_row)
 							if len(new_clear_row) != len(self.matrix[0]):
@@ -29,11 +26,12 @@ class Main(object):
 							break
 					self.matrix.append(current_clear_row)
 			else:
-				print self.matrix
-				print self.get_minor(self.matrix,2,1)
+				print self.get_determinant(self.matrix)
 				return
 
 	def get_minor(self,matrix, row,column):
+		''' this would give us the minor of a given element
+		'''
 		new_matrix = []
 		row = row-1
 		column = column-1
@@ -50,18 +48,45 @@ class Main(object):
 				new_matrix.append(new_matrix_row)
 		return new_matrix
 
+	def get_cofactor(self, row, col):
+		'''this function returns the cofactor of the element
+			Cofactor of a given element is the element multiplied by '-1'^(element_row + element_column) 
+		'''
+		power = int(row) + int(col+1)
+		return pow(-1,power)
+
 	def get_row(self,str_row):
 		sep_elements = str_row.split(',')
 		clear_row = []
 		count_cols = 0
 		for item in sep_elements:
-			if item.isdigit():
-				count_cols += 1
-				clear_row.append(int(item))
+			if item.startswith('-'):
+				if item[1:].isdigit():
+					count_cols += 1
+					clear_row.append(int(item))
+			else:
+				if item.isdigit():
+					count_cols += 1
+					clear_row.append(int(item))
 		if clear_row:
 			return clear_row
 		else:
 			return []
+
+	def get_determinant(self,matrix):
+		try:
+			det = 0
+			if len(matrix) != 2 and len(matrix[0]) != 2:
+				for col in xrange(len(matrix[0])):
+					minor = self.get_minor(matrix,1,col+1)
+					minor_det = self.get_determinant(minor)
+					cofactor = self.get_cofactor(1,col)*minor_det
+					det +=  cofactor*matrix[0][col]
+				return det
+			else:
+				return (matrix[0][0]*matrix[1][1] - matrix[0][1]*matrix[1][0])
+		except IndexError:
+			print 'Couldnt find the determinant'
 
 if __name__=='__main__':
 	p = Main()
